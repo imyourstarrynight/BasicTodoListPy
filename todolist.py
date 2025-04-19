@@ -1,33 +1,29 @@
 # Todo list
 # Requirements: Add/View/Delete Task - Add priority to list
-highPriorityList = []
-normalPriorityList = []
-lowPriorityList = []
-
-class Task:
-    def __init__(self, name, priority):
-        self.name = name
-        self.priority = priority
-    
-    def __str__(self):
-        return f"{self.name}"
+import json 
 
 
-def AddItemToList(p_list, p_taskName, p_taskPriority):
-    p_list.append(Task(p_taskName, p_taskPriority))
+priorities = {
+    "high": [],
+    "normal": [],
+    "low": []
+}
+
+def AddItemToList(p_key, p_taskName):
+    priorities[p_key].append(p_taskName)
 
 
-def RemoveItemFromList(p_list):
+def RemoveItemFromList(p_key):
         userOption = int(input("What number task would you like to delete?: "))
-        p_list.pop(userOption - 1)
+        priorities[p_key].pop(userOption - 1)
 
 
-def DisplayList(p_list, p_priority):
-    if p_list:
+def DisplayList(p_key, p_priority):
+    if priorities[p_key]:
         counter = 1
         print(f"---- {p_priority} Priority ----")
-        for task in p_list:
-            print(f"{counter}. {task.name}")
+        for task in priorities[p_key]:
+            print(f"{counter}. {task}")
             counter +=1
 
 
@@ -36,16 +32,16 @@ def AddTask():
         taskName = input("Input a task you'd like to put on your to-do list: ")
         taskPriority = input("Input the priority for the task: [N]ormal, [H]igh, [L]ow: ").lower()
         
-        if taskPriority == 'n':
-            AddItemToList(normalPriorityList, taskName, taskPriority)
-        elif taskPriority == 'h':
-            AddItemToList(highPriorityList, taskName, taskPriority)
+        if taskPriority[0] == 'n':
+            AddItemToList("normal", taskName)
+        elif taskPriority[0] == 'h':
+            AddItemToList("high", taskName)
         else: 
-            AddItemToList(lowPriorityList, taskName, taskPriority)
+            AddItemToList("low", taskName)
 
-        userInput = input("Do you want to create another task? [y/n]").lower()
+        userInput = input("Do you want to create another task? [y/n] ").lower()
         
-        if userInput == 'y':
+        if userInput[0] == 'y':
             continue
         else: 
             break
@@ -53,11 +49,11 @@ def AddTask():
 
 def DisplayTask():
     
-    DisplayList(highPriorityList, "High")
-    DisplayList(normalPriorityList, "Normal")
-    DisplayList(lowPriorityList, "Low")
+    DisplayList("high", "High")
+    DisplayList("normal", "Normal")
+    DisplayList("low", "Low")
         
-    if not lowPriorityList and not highPriorityList and not normalPriorityList:
+    if not priorities["high"] and not priorities["normal"] and not priorities["low"]:
         print("\nList is empty!")
 
 
@@ -65,18 +61,26 @@ def DeleteTask():
     while True:
 
         DisplayTask()
-        userOption = input("What category priority is your task you's like to delete?").lower()
+        userOption = input("What category priority is your task you's like to delete?\n [H]igh\n [N]ormal\n [L]ow").lower().strip()
 
-        if userOption == 'h':
-            RemoveItemFromList(highPriorityList)
-        elif userOption == 'n':
-            RemoveItemFromList(normalPriorityList)
-        elif userOption == 'l':
-            RemoveItemFromList(lowPriorityList)
-        elif userOption == 'q':
+        if userOption[0] == 'h':
+            RemoveItemFromList("high")
+        elif userOption[0] == 'n':
+            RemoveItemFromList("normal")
+        elif userOption[0] == 'l':
+            RemoveItemFromList("low")
+        elif userOption[0] == 'q':
             break
         else:
             print("Invalid character!")
+
+        userInput = input("Do you want to delete another task? [y/n] ").lower()
+        
+        if userInput == 'y':
+            continue
+        else: 
+            break
+
         
 
 def UserMenu():
@@ -84,24 +88,37 @@ def UserMenu():
     return userOption
 
 
-def main():
-    while True:
-        userOption = UserMenu()
+def SaveTaskJson():
+    with open("data.json", "w") as file:
+        json.dump(priorities, file, indent=4)
 
-        try:
-            if userOption == 'a':
-                AddTask()
-            elif userOption == 's':
-                DisplayTask()
-                input("\nPress enter to continue...")
-            elif userOption == 'd':
-                DeleteTask()
-            elif userOption == 'q':
-                break
-            else: 
-                print("Invalid character: please try again!")
-        
-        except ValueError:
-            print("Be sure you're typing a character!")
+def LoadTaskListJson():
+    with open("data.json", "r") as file:
+        priorities = json.load(file)
+        return priorities
+
+
+try:
+    priorities = LoadTaskListJson()
+except FileNotFoundError:
+    enterToContinue = input("No save data found, press enter to continue...")
+
+while True:
+    userOption = UserMenu()
+
+    try:
+        if userOption[0] == 'a':
+            AddTask()
+        elif userOption[0] == 's':
+            DisplayTask()
+            input("\nPress enter to continue...")
+        elif userOption[0] == 'd':
+            DeleteTask()
+        elif userOption[0] == 'q':
+            SaveTaskJson()
+            break
+        else: 
+            print("Invalid character: please try again!")
     
-main()                   
+    except ValueError:
+        print("Be sure you're typing a character!")
