@@ -1,3 +1,5 @@
+# Todo list
+# Requirements: Add/View/Delete Task - Add priority to list
 highPriorityList = []
 normalPriorityList = []
 lowPriorityList = []
@@ -10,8 +12,8 @@ class Task:
     def __str__(self):
         return f"{self.name}"
 
+
 def AddTask():
-    
     while True:
         taskName = input("Input a task you'd like to put on your to-do list: ")
         taskPriority = input("Input the priority for the task: [N]ormal, [H]igh, [L]ow: ").lower()
@@ -32,17 +34,36 @@ def AddTask():
 
 
 def DisplayTask():
-    print("---- High Priority ----")
-    for task in highPriorityList: 
-        print(task.name)
+    if highPriorityList: # List return false as a boolean if they're empty
+        print("---- High Priority ----")
+        for task in highPriorityList: 
+            print(task.name)
 
-    print("---- Normal Priority ----")    
-    for task in normalPriorityList: 
-        print(task.name)
+    if normalPriorityList:
+        print("---- Normal Priority ----")    
+        for task in normalPriorityList: 
+            print(task.name)
+        
+    if lowPriorityList:
+        print("---- Low Priority ----")
+        for task in lowPriorityList: 
+            print(task.name)
 
-    print("---- Low Priority ----")
-    for task in lowPriorityList: 
-        print(task.name)
 
-AddTask()
-DisplayTask()
+def UserMenu():
+    userOption = input("\nWelcome to your todo list!\n Would you like to: \n [A]dd a task \n [S]how task \n [D]elete Task \n [Q]uit \n").lower()
+    return userOption
+
+
+while True:
+    userOption = UserMenu()
+    if userOption == 'a':
+        AddTask()
+    elif userOption == 's':
+        DisplayTask()
+        input("\nPress enter to continue...")
+    elif userOption == 'q':
+        break
+    else:
+        pass
+ 
