@@ -14,7 +14,7 @@ def AddItemToList(p_key, p_taskName):
 
 
 def RemoveItemFromList(p_key):
-        userOption = int(input("What number task would you like to delete?: "))
+        userOption = int(input("What number task would you like to delete?: ")).strip()
         priorities[p_key].pop(userOption - 1)
 
 
@@ -30,7 +30,7 @@ def DisplayList(p_key, p_priority):
 def AddTask():
     while True:
         taskName = input("Input a task you'd like to put on your to-do list: ")
-        taskPriority = input("Input the priority for the task: [N]ormal, [H]igh, [L]ow: ").lower()
+        taskPriority = input("Input the priority for the task: [N]ormal, [H]igh, [L]ow: ").lower().strip()
         
         if taskPriority[0] == 'n':
             AddItemToList("normal", taskName)
@@ -74,9 +74,9 @@ def DeleteTask():
         else:
             print("Invalid character!")
 
-        userInput = input("Do you want to delete another task? [y/n] ").lower()
+        userInput = input("Do you want to delete another task? [y/n] ").lower().strip()
         
-        if userInput == 'y':
+        if userInput[0] == 'y':
             continue
         else: 
             break
@@ -84,8 +84,8 @@ def DeleteTask():
         
 
 def UserMenu():
-    userOption = input("\nWelcome to your todo list!\n Would you like to: \n [A]dd a task \n [S]how task \n [D]elete Task \n [Q]uit \n").lower()
-    return userOption
+    userOption = input("\nWelcome to your todo list!\n Would you like to: \n [A]dd a task \n [S]how task \n [D]elete Task \n [Q]uit \n").lower().strip()
+    return userOption[0]
 
 
 def SaveTaskJson():
