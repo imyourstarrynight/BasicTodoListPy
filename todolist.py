@@ -14,7 +14,7 @@ def AddItemToList(p_key, p_taskName):
 
 
 def RemoveItemFromList(p_key):
-        userOption = int(input("What number task would you like to delete?: ")).strip()
+        userOption = int(input("What number task would you like to delete?: "))
         priorities[p_key].pop(userOption - 1)
 
 
