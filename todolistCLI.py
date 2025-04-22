@@ -1,13 +1,14 @@
-# Todo list
-# Requirements: Add/View/Delete Task - Add priority to list
 import json 
-
 
 priorities = {
     "high": [],
     "normal": [],
     "low": []
 }
+
+errorColor = "\033[31m"
+warningColor = "\033[0;33m"
+ansiReset = "\033[0m"
 
 def AddItemToList(p_key, p_taskName):
     priorities[p_key].append(p_taskName)
@@ -28,23 +29,39 @@ def DisplayList(p_key, p_priority):
 
 
 def AddTask():
-    while True:
-        taskName = input("Input a task you'd like to put on your to-do list: ")
-        taskPriority = input("Input the priority for the task: [N]ormal, [H]igh, [L]ow: ").lower().strip()
-        
-        if taskPriority[0] == 'n':
-            AddItemToList("normal", taskName)
-        elif taskPriority[0] == 'h':
-            AddItemToList("high", taskName)
-        else: 
-            AddItemToList("low", taskName)
+    isRunning = True
+    while isRunning:
+        userConfirm = True
 
-        userInput = input("Do you want to create another task? [y/n] ").lower()
+        taskName = input("Input a task you'd like to put on your to-do list: ")
+        taskPriority = input("Input the priority for the task:\n"
+                             "[N]ormal\n"
+                             "[H]igh\n"
+                             "[L]ow\n").lower().strip()
         
-        if userInput[0] == 'y':
-            continue
-        else: 
-            break
+        try:
+            if taskPriority[0] == 'n':
+                AddItemToList("normal", taskName)
+            elif taskPriority[0] == 'h':
+                AddItemToList("high", taskName)
+            elif taskPriority[0] == "l": 
+                AddItemToList("low", taskName)
+            else:
+                print(f"{errorColor}Invalid character: Please try again!{ansiReset}")
+        except IndexError:
+            print(f"{errorColor}Error: Can't process empty input, Try again!{ansiReset}")
+            userConfirm = False
+
+        while userConfirm:
+            userInput = input("Do you want to create another task? [y/n] ").lower().strip()
+            
+            if userInput[0] == 'y':
+                break
+            elif userInput[0] == 'n': 
+                isRunning = False
+                break
+            else:
+                print(f"{errorColor}Invalid Input, please type [Y]es or [N]o{ansiReset}")
 
 
 def DisplayTask():
@@ -54,43 +71,60 @@ def DisplayTask():
     DisplayList("low", "Low")
         
     if not priorities["high"] and not priorities["normal"] and not priorities["low"]:
-        print("\nList is empty!")
+        print(f"\n{warningColor}List is empty!{ansiReset}\n")
 
 
 def DeleteTask():
-    while True:
+    isRunning = True
+    while isRunning:
+        userConfirm = True
 
         DisplayTask()
-        userOption = input("What category priority is your task you's like to delete?\n [H]igh\n [N]ormal\n [L]ow").lower().strip()
+        userOption = input("What category priority is your task you's like to delete?\n"
+                           "[H]igh\n"
+                           "[N]ormal\n" 
+                           "[L]ow\n").lower().strip()
 
-        if userOption[0] == 'h':
-            RemoveItemFromList("high")
-        elif userOption[0] == 'n':
-            RemoveItemFromList("normal")
-        elif userOption[0] == 'l':
-            RemoveItemFromList("low")
-        elif userOption[0] == 'q':
-            break
-        else:
-            print("Invalid character!")
+        try:
+            if userOption[0] == 'h':
+                RemoveItemFromList("high")
+            elif userOption[0] == 'n':
+                RemoveItemFromList("normal")
+            elif userOption[0] == 'l':
+                RemoveItemFromList("low")
+            elif userOption[0] == 'q':
+                break
+            else:
+                print(f"{errorColor}Invalid character!{ansiReset}")
+        except IndexError:
+            print(f"{errorColor}Error: Can't process empty input, Try again!{ansiReset}")
+            userConfirm = False
 
-        userInput = input("Do you want to delete another task? [y/n] ").lower().strip()
-        
-        if userInput[0] == 'y':
-            continue
-        else: 
-            break
+        while userConfirm:
+            userInput = input("Do you want to remove another task? [y/n] ").lower()
+            
+            if userInput[0] == 'y':
+                break
+            elif userInput[0] == 'n': 
+                isRunning = False
+                break
+            else:
+                print(f"{errorColor}Invalid Input, please type [Y]es or [N]o{ansiReset}")
 
-        
 
 def UserMenu():
-    userOption = input("\nWelcome to your todo list!\n Would you like to: \n [A]dd a task \n [S]how task \n [D]elete Task \n [Q]uit \n").lower().strip()
+    userOption = input("\nWelcome to your todo list!\n Would you like to:\n"
+                       "[A]dd a task\n"
+                       "[S]how task\n" 
+                       "[D]elete Task\n" 
+                       "[Q]uit\n").lower().strip()
     return userOption[0]
 
 
 def SaveTaskJson():
     with open("data.json", "w") as file:
         json.dump(priorities, file, indent=4)
+
 
 def LoadTaskListJson():
     with open("data.json", "r") as file:
@@ -101,7 +135,8 @@ def LoadTaskListJson():
 try:
     priorities = LoadTaskListJson()
 except FileNotFoundError:
-    enterToContinue = input("No save data found, press enter to continue...")
+    enterToContinue = input(f"{warningColor}No save data found, press enter to continue...{ansiReset}")
+
 
 while True:
     userOption = UserMenu()
@@ -118,7 +153,6 @@ while True:
             SaveTaskJson()
             break
         else: 
-            print("Invalid character: please try again!")
-    
-    except ValueError:
-        print("Be sure you're typing a character!")
+            print(f"{errorColor}Invalid character: please try again!{ansiReset}")
+    except IndexError:
+        print(f"{errorColor}Error: Can't process empty input, Try again!{ansiReset}")
