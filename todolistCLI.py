@@ -1,25 +1,25 @@
 import json 
 
-priorities = {
+priorities: dict = {
     "high": [],
     "normal": [],
     "low": []
 }
 
-errorColor = "\033[31m"
-warningColor = "\033[0;33m"
-ansiReset = "\033[0m"
+errorColor: str = "\033[31m"
+warningColor: str = "\033[0;33m"
+ansiReset: str = "\033[0m"
 
-def AddItemToList(p_key, p_taskName):
+def AddItemToList(p_key: str, p_taskName: str) -> None:
     priorities[p_key].append(p_taskName)
 
 
-def RemoveItemFromList(p_key):
+def RemoveItemFromList(p_key: str) -> None:
         userOption = int(input("What number task would you like to delete?: "))
         priorities[p_key].pop(userOption - 1)
 
 
-def DisplayList(p_key, p_priority):
+def DisplayList(p_key: str, p_priority: str) -> None:
     if priorities[p_key]:
         counter = 1
         print(f"---- {p_priority} Priority ----")
@@ -28,7 +28,7 @@ def DisplayList(p_key, p_priority):
             counter +=1
 
 
-def AddTask():
+def AddTask() -> None:
     isRunning = True
     while isRunning:
         userConfirm = True
@@ -64,7 +64,7 @@ def AddTask():
                 print(f"{errorColor}Invalid Input, please type [Y]es or [N]o{ansiReset}")
 
 
-def DisplayTask():
+def DisplayTask() -> None:
     
     DisplayList("high", "High")
     DisplayList("normal", "Normal")
@@ -74,7 +74,7 @@ def DisplayTask():
         print(f"\n{warningColor}List is empty!{ansiReset}\n")
 
 
-def DeleteTask():
+def DeleteTask() -> None:
     isRunning = True
     while isRunning:
         userConfirm = True
@@ -101,7 +101,7 @@ def DeleteTask():
             userConfirm = False
 
         while userConfirm:
-            userInput = input("Do you want to remove another task? [y/n] ").lower()
+            userInput = input("Do you want to remove another task? [y/n] ").lower().strip()
             
             if userInput[0] == 'y':
                 break
@@ -112,7 +112,7 @@ def DeleteTask():
                 print(f"{errorColor}Invalid Input, please type [Y]es or [N]o{ansiReset}")
 
 
-def UserMenu():
+def UserMenu() -> str:
     userOption = input("\nWelcome to your todo list!\n Would you like to:\n"
                        "[A]dd a task\n"
                        "[S]how task\n" 
@@ -121,12 +121,12 @@ def UserMenu():
     return userOption[0]
 
 
-def SaveTaskJson():
+def SaveTaskJson() -> None:
     with open("data.json", "w") as file:
         json.dump(priorities, file, indent=4)
 
 
-def LoadTaskListJson():
+def LoadTaskListJson() -> dict:
     with open("data.json", "r") as file:
         priorities = json.load(file)
         return priorities
