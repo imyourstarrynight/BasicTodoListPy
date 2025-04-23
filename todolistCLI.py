@@ -1,34 +1,34 @@
 import json 
 
-priorities: dict = {
-    "high": [],
-    "normal": [],
-    "low": []
-}
-
+# ANSI color ease of use variables
 errorColor: str = "\033[31m"
 warningColor: str = "\033[0;33m"
 ansiReset: str = "\033[0m"
 
-def AddItemToList(p_key: str, p_taskName: str) -> None:
-    priorities[p_key].append(p_taskName)
+
+# Adds an item to specified list
+def AddItemToList(p_key: str, p_taskName: str, p_masterList: dict) -> None:
+    p_masterList[p_key].append(p_taskName)
 
 
-def RemoveItemFromList(p_key: str) -> None:
+# Removes an item from the specified list
+def RemoveItemFromList(p_key: str, p_masterList: dict) -> None:
         userOption = int(input("What number task would you like to delete?: "))
-        priorities[p_key].pop(userOption - 1)
+        p_masterList[p_key].pop(userOption - 1)
 
 
-def DisplayList(p_key: str, p_priority: str) -> None:
-    if priorities[p_key]:
+# Displays and Enumerates specific list
+def DisplayList(p_key: str, p_priority: str, p_masterList: dict) -> None:
+    if p_masterList[p_key]:
         counter = 1
         print(f"---- {p_priority} Priority ----")
-        for task in priorities[p_key]:
+        for task in p_masterList[p_key]:
             print(f"{counter}. {task}")
             counter +=1
 
 
-def AddTask() -> None:
+# Addition logic that runs to add to certain list
+def AddTask(p_masterList: dict) -> None:
     isRunning = True
     while isRunning:
         userConfirm = True
@@ -40,62 +40,67 @@ def AddTask() -> None:
                              "[L]ow\n").lower().strip()
         
         try:
-            if taskPriority[0] == 'n':
-                AddItemToList("normal", taskName)
-            elif taskPriority[0] == 'h':
-                AddItemToList("high", taskName)
-            elif taskPriority[0] == "l": 
-                AddItemToList("low", taskName)
-            else:
-                print(f"{errorColor}Invalid character: Please try again!{ansiReset}")
+            match taskPriority[0]:
+                case "h":
+                    AddItemToList("high", taskName, p_masterList)
+                case "n":
+                    AddItemToList("normal", taskName, p_masterList)
+                case "l":
+                    AddItemToList("low", taskName, p_masterList)
+                case _: 
+                    print(f"{errorColor}Invalid character: Please try again!{ansiReset}")
         except IndexError:
             print(f"{errorColor}Error: Can't process empty input, Try again!{ansiReset}")
             userConfirm = False
 
         while userConfirm:
             userInput = input("Do you want to create another task? [y/n] ").lower().strip()
+
+            match userInput[0]:
+                case "y":
+                    break
+                case "n":
+                    isRunning = False
+                    break
+                case _:
+                    print(f"{errorColor}Invalid Input, Please type [Y]es or [N]o")
             
-            if userInput[0] == 'y':
-                break
-            elif userInput[0] == 'n': 
-                isRunning = False
-                break
-            else:
-                print(f"{errorColor}Invalid Input, please type [Y]es or [N]o{ansiReset}")
 
-
-def DisplayTask() -> None:
+# Displays all the list to the user (If they aren't empty)           
+def DisplayTask(p_masterList: dict) -> None:
     
-    DisplayList("high", "High")
-    DisplayList("normal", "Normal")
-    DisplayList("low", "Low")
+    DisplayList("high", "High", p_masterList)
+    DisplayList("normal", "Normal", p_masterList)
+    DisplayList("low", "Low", p_masterList)
         
-    if not priorities["high"] and not priorities["normal"] and not priorities["low"]:
+    if not p_masterList["high"] and not p_masterList["normal"] and not p_masterList["low"]:
         print(f"\n{warningColor}List is empty!{ansiReset}\n")
 
 
-def DeleteTask() -> None:
+# Logic that runs to delete to certain list
+def DeleteTask(p_masterList: dict) -> None:
     isRunning = True
     while isRunning:
         userConfirm = True
 
-        DisplayTask()
+        DisplayTask(p_masterList)
         userOption = input("What category priority is your task you's like to delete?\n"
                            "[H]igh\n"
                            "[N]ormal\n" 
                            "[L]ow\n").lower().strip()
-
-        try:
-            if userOption[0] == 'h':
-                RemoveItemFromList("high")
-            elif userOption[0] == 'n':
-                RemoveItemFromList("normal")
-            elif userOption[0] == 'l':
-                RemoveItemFromList("low")
-            elif userOption[0] == 'q':
-                break
-            else:
-                print(f"{errorColor}Invalid character!{ansiReset}")
+        
+        try: 
+            match userOption[0]:
+                case "h":
+                    RemoveItemFromList("high")
+                case "n":
+                    RemoveItemFromList("normal")
+                case "l":
+                    RemoveItemFromList("low")
+                case "q":
+                    break
+                case _:
+                    print(f"{errorColor}Invalid Character!{ansiReset}")
         except IndexError:
             print(f"{errorColor}Error: Can't process empty input, Try again!{ansiReset}")
             userConfirm = False
@@ -103,15 +108,17 @@ def DeleteTask() -> None:
         while userConfirm:
             userInput = input("Do you want to remove another task? [y/n] ").lower().strip()
             
-            if userInput[0] == 'y':
-                break
-            elif userInput[0] == 'n': 
-                isRunning = False
-                break
-            else:
-                print(f"{errorColor}Invalid Input, please type [Y]es or [N]o{ansiReset}")
+            match userInput[0]:
+                case "y":
+                    break
+                case "n":
+                    isRunning = False
+                    break
+                case _:
+                    print(f"{errorColor}Invalid Input, Please type [Y]es or [N]o")
 
 
+# The user menu seperated into a function
 def UserMenu() -> str:
     userOption = input("\nWelcome to your todo list!\n Would you like to:\n"
                        "[A]dd a task\n"
@@ -121,38 +128,48 @@ def UserMenu() -> str:
     return userOption[0]
 
 
-def SaveTaskJson() -> None:
+# The save function
+def SaveTaskJson(p_masterList) -> None:
     with open("data.json", "w") as file:
-        json.dump(priorities, file, indent=4)
+        json.dump(p_masterList, file, indent=4)
 
 
+# Loads the list if the user has used app before
 def LoadTaskListJson() -> dict:
     with open("data.json", "r") as file:
-        priorities = json.load(file)
-        return priorities
+        masterList = json.load(file)
+        return masterList
 
 
-try:
-    priorities = LoadTaskListJson()
-except FileNotFoundError:
-    enterToContinue = input(f"{warningColor}No save data found, press enter to continue...{ansiReset}")
-
-
-while True:
-    userOption = UserMenu()
-
+# Main function
+def main() -> None:
     try:
-        if userOption[0] == 'a':
-            AddTask()
-        elif userOption[0] == 's':
-            DisplayTask()
-            input("\nPress enter to continue...")
-        elif userOption[0] == 'd':
-            DeleteTask()
-        elif userOption[0] == 'q':
-            SaveTaskJson()
-            break
-        else: 
-            print(f"{errorColor}Invalid character: please try again!{ansiReset}")
-    except IndexError:
-        print(f"{errorColor}Error: Can't process empty input, Try again!{ansiReset}")
+        masterList: dict = LoadTaskListJson() 
+    except FileNotFoundError:
+        input(f"{warningColor}No save data found, press enter to continue...{ansiReset}")
+        
+        masterList: dict = {
+            "high": [],
+            "normal": [],
+            "low": []
+        }
+
+    while True:
+        userOption: str = UserMenu()
+
+        try:
+            match userOption[0]:
+                case "a":
+                    AddTask(masterList)
+                case "s":
+                    DisplayTask(masterList)
+                case "d":
+                    DeleteTask(masterList)
+                case "q":
+                    SaveTaskJson(masterList)
+                case _:
+                    print(f"{errorColor}Invalid character: please try again!{ansiReset}")
+        except IndexError:
+            print(f"{errorColor}Error: Can't process empty input, Try again!{ansiReset}")
+
+main()
