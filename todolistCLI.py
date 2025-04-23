@@ -167,6 +167,7 @@ def main() -> None:
                     DeleteTask(masterList)
                 case "q":
                     SaveTaskJson(masterList)
+                    break
                 case _:
                     print(f"{errorColor}Invalid character: please try again!{ansiReset}")
         except IndexError:
